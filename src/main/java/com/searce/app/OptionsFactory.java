@@ -32,7 +32,8 @@ public class OptionsFactory {
 		options.setTableType((configEntity.getString("tableType")));
 		options.setPrimaryKeyColumn((configEntity.getString("primaryKeyColumn")));
 		
-		String query = "SELECT * FROM " + options.getTableName() + " WHERE " + options.getPrimaryKeyColumn() + " > " + options.getStartingPoint() + ";";
+		String query = "SELECT * FROM " + options.getTableName();
+		if(options.getPrimaryKeyColumn() != "") query = query + " WHERE " + options.getPrimaryKeyColumn() + " > " + options.getStartingPoint();
 		options.setDatabseQuery((query));
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
