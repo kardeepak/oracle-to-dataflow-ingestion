@@ -31,6 +31,7 @@ public class App {
     			.withRowMapper(new CustomRowMapper(options.getPrimaryKeyColumn()))
     			.withCoder(KvCoder.of(StringUtf8Coder.of(), StringUtf8Coder.of()))
     	);
+    
     		
     rows.apply("Extract Data For File", ParDo.of(new DoFn<KV<String, String>, String>() {
     		@ProcessElement
@@ -46,8 +47,8 @@ public class App {
     		c.output(Long.parseLong(c.element().getValue()));
     	}
     }))
-    .apply("Finding Maximum Primary Key", Max.longsGlobally())
-    .apply("Updating Config", MapElements.via(new OptionsFactory.ConfigUpdater(options)));
+    	.apply("Finding Maximum Primary Key", Max.longsGlobally())
+    	.apply("Updating Config", MapElements.via(new OptionsFactory.ConfigUpdater(options)));
     
     p.run();
   }

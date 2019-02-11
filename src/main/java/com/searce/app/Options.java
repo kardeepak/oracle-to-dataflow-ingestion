@@ -1,9 +1,10 @@
 package com.searce.app;
 
+import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 
-public interface Options extends PipelineOptions {
+public interface Options extends PipelineOptions, GcpOptions {
 	
 	@Description("Config Filepath")
 	String getConfigKind();
@@ -60,5 +61,13 @@ public interface Options extends PipelineOptions {
 	@Description("Source Counter")
 	Long getCounter();
 	void setCounter(Long value);
+	
+	@Description("Bigquery Dataset")
+	String getBQDataset();
+	void setBQDataset(String value);
+	
+	@Description("Bigquery Table")
+	String getBQTable();
+	void setBQTable(String value);
 	
 }
