@@ -41,7 +41,7 @@ public class OptionsFactory {
 		options.setBQTable(configEntity.getString("BQTable"));
 		
 		String query = "SELECT * FROM " + options.getTableName();
-		if(options.getPrimaryKeyColumn() != "") query = query + " WHERE " + options.getPrimaryKeyColumn() + " > " + options.getStartingPoint();
+		// if(!options.getPrimaryKeyColumn().isEmpty()) query = query + " WHERE " + options.getPrimaryKeyColumn() + " > " + options.getStartingPoint();
 		options.setDatabseQuery((query));
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");

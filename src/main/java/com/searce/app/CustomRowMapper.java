@@ -25,6 +25,6 @@ public class CustomRowMapper implements RowMapper<KV<String, String>> {
 				break;
 			}
 		}
-		return KV.of(output, (this.primaryKeyColumn != "" ? resultSet.getString(this.primaryKeyColumn) : "0"));
+		return KV.of(output, (this.primaryKeyColumn.isEmpty() ? "0" : resultSet.getString(this.primaryKeyColumn)));
     }
 }
