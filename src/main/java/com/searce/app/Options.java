@@ -2,7 +2,6 @@ package com.searce.app;
 
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
-import org.apache.beam.sdk.options.ValueProvider;
 
 public interface Options extends PipelineOptions {
 	

@@ -3,7 +3,6 @@ package com.searce.app;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import org.apache.beam.sdk.options.ValueProvider.StaticValueProvider;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 
 import com.google.cloud.datastore.Datastore;
