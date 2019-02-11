@@ -83,6 +83,13 @@ public class OptionsFactory {
 						.build();
 				
 				datastore.put(updatedConfigEntity);
+				
+				if(configEntity.contains("metadata")) {
+					for(String name: configEntity.getEntity("metadata").getNames()) {
+						this.row.put(name, configEntity.getEntity("metadata").getString(name));
+					}
+				}
+				
 			}
 			
 			{
