@@ -12,6 +12,7 @@ TEMP_LOCATION="gs://tsl-datalake/tmp/"
 STAGING_LOCATION="gs://tsl-datalake/tmp/"
 
 
+mvn compile
 mvn exec:java -Dexec.mainClass=com.searce.app.App \
 -Dexec.args="--runner=$RUNNER \
 --project=$PROJECT \
