@@ -55,14 +55,14 @@ public class OptionsFactory {
 		private String configKeyName;
 		private String dataset;
 		private String table;
-		private Map<String, Object> row;
+		private Map<String, String> row;
 
 		public ConfigUpdater(Options options) {
 			this.configKind = options.getConfigKind();
 			this.configKeyName = options.getConfigKeyName();
 			this.dataset = options.getBQDataset();
 			this.table = options.getBQTable();
-			this.row = new HashMap<String, Object>();
+			this.row = new HashMap<String, String>();
 			this.row.put("filename", options.getOutputFilepath());
 		}
 		@Override
@@ -98,7 +98,7 @@ public class OptionsFactory {
 				TableId tableId = TableId.of(this.dataset, this.table);
 				bigquery.insertAll(
 						InsertAllRequest.newBuilder(tableId)
-							.addRow("test", this.row)
+							.addRow(this.row.get("filename"), this.row)
 							.build());
 
 			}
