@@ -1,15 +1,25 @@
 #!/bin/bash
 
 RUNNER=DataflowRunner
-CONFIG_KEYNAME=testConfig
-CONFIG_KIND=test
+REGION=asia-east1
+ZONE=asia-south1-c
+PROJECT=tsl-datalake
+CONFIG_KIND=config
+CONFIG_KEYNAME=AMDS
 NETWROK=vpc-tsl
-SUBNET=subnet-1
+SUBNET=regions/asia-south1/subnetworks/subnet-1
+TEMP_LOCATION="gs://tsl-datalake/tmp/"
+STAGING_LOCATION="gs://tsl-datalake/tmp/"
+
 
 mvn exec:java -Dexec.mainClass=com.searce.app.App \
 -Dexec.args="--runner=$RUNNER \
---configKeyName=$CONFIG_KEYNAME \
+--project=$PROJECT \
+--region=$REGION \
+--zone=$ZONE \
 --configKind=$CONFIG_KIND \
+--configKeyName=$CONFIG_KEYNAME \
 --network=$NETWORK \
---subnetwork=$SUBNET"
-
+--subnetwork=$SUBNET \
+--gcpTempLocation=$TEMP_LOCATION \
+--stagingLocation=$STAGING_LOCATION"
