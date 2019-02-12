@@ -25,28 +25,35 @@ public class OptionsFactory {
 							.newKey(options.getConfigKeyName());
 		Entity configEntity = datastore.get(configKey);
 
-		options.setOutputFolder((configEntity.getString("outputFolder")));
-		options.setStartingPoint((Long.valueOf(configEntity.getLong("startingPoint"))));
-		options.setCounter((Long.valueOf(configEntity.getLong("counter"))));
+		options.setOutputFolder(configEntity.getString("outputFolder"));
+		options.setStartingPoint(Long.valueOf(configEntity.getLong("startingPoint")));
+		options.setCounter(Long.valueOf(configEntity.getLong("counter")));
 		
-		options.setDatabaseDriver((configEntity.getString("databaseDriver")));
-		options.setDatabaseConnectionURL((configEntity.getString("databaseConnectionURL")));
-		options.setDatabaseUsername((configEntity.getString("databaseUsername")));
-		options.setDatabasePassword((configEntity.getString("databasePassword")));
-		options.setTableName((configEntity.getString("tableName")));
-		options.setTableType((configEntity.getString("tableType")));
-		options.setPrimaryKeyColumn((configEntity.getString("primaryKeyColumn")));
+		options.setDatabaseDriver(configEntity.getString("databaseDriver"));
+		options.setDatabaseConnectionURL(configEntity.getString("databaseConnectionURL"));
+		options.setDatabaseUsername(configEntity.getString("databaseUsername"));
+		options.setDatabasePassword(configEntity.getString("databasePassword"));
+		options.setTableName(configEntity.getString("tableName"));
+		options.setTableSchema(configEntity.getString("tableSchema"));
+		options.setTableType(configEntity.getString("tableType"));
+		options.setPrimaryKeyColumn(configEntity.getString("primaryKeyColumn"));
 		
 		options.setBQDataset(configEntity.getString("BQDataset"));
 		options.setBQTable(configEntity.getString("BQTable"));
 		
 		String query = "SELECT * FROM " + options.getTableName();
-		// if(!options.getPrimaryKeyColumn().isEmpty()) query = query + " WHERE " + options.getPrimaryKeyColumn() + " > " + options.getStartingPoint();
-		options.setDatabseQuery((query));
+		if(!options.getPrimaryKeyColumn().isEmpty()) {
+			String countQuery = "SELECT NUM_ROWS - " + options.getStartingPoint().toString() + " FROM ALL_TABLES " 
+								+ "WHERE OWNER = '" + options.getTableSchema() + "' AND TABLE_NAME = '" + options.getTableName() + "'";
+			query = query + " WHERE ROWNUM <= "
+						+ "(" + countQuery + ")"
+						+ "ORDER BY " + options.getPrimaryKeyColumn() + " DESC";
+		}
+		options.setDatabseQuery(query);
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
 		String outputFilepath = options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableName() + "-" + options.getCounter();
-		options.setOutputFilepath((outputFilepath));
+		options.setOutputFilepath(outputFilepath);
 	}
 	
 	@SuppressWarnings("serial")
@@ -66,8 +73,11 @@ public class OptionsFactory {
 			this.row.put("filename", options.getOutputFilepath());
 		}
 		@Override
-		public Long apply(Long startingPoint) {
-			if(startingPoint.equals(Long.MIN_VALUE))	return startingPoint;
+		public Long apply(Long count) {
+			if(count.equals(0)) {
+				return count;
+			}
+			
 			{
 				// Updating Config at Datastore
 				Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -75,11 +85,11 @@ public class OptionsFactory {
 									.newKey(this.configKeyName);
 				Entity configEntity = datastore.get(configKey);
 				
-				if(configEntity.getString("tableType").equals("update"))	startingPoint = (long) 0;
+				if(configEntity.getString("tableType").equals("update"))	count = (long) 0;
 				
 				Entity updatedConfigEntity = Entity.newBuilder(configEntity)
-						.set("counter", configEntity.getLong("counter") + 1)
-						.set("startingPoint", startingPoint)
+						.set("counter", Long.sum(configEntity.getLong("counter"), (long)1))
+						.set("startingPoint", Long.sum(configEntity.getLong("startingPoint"), count.longValue()))
 						.build();
 				
 				datastore.put(updatedConfigEntity);
@@ -103,7 +113,7 @@ public class OptionsFactory {
 
 			}
 			
-			return startingPoint;
+			return count;
 		}
 	}
 }

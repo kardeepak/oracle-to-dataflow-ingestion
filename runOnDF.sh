@@ -5,12 +5,10 @@ REGION=asia-east1
 ZONE=asia-south1-c
 PROJECT=tsl-datalake
 CONFIG_KIND=config
-CONFIG_KEYNAME=AMDS
-NETWROK=vpc-tsl
+NETWORK=vpc-tsl
 SUBNET=regions/asia-south1/subnetworks/subnet-1
 TEMP_LOCATION="gs://tsl-datalake/tmp/"
 STAGING_LOCATION="gs://tsl-datalake/tmp/"
-
 
 mvn compile
 mvn exec:java -Dexec.mainClass=com.searce.app.App \

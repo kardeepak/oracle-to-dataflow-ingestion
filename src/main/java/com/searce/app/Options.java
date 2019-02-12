@@ -37,7 +37,11 @@ public interface Options extends PipelineOptions, GcpOptions {
 	@Description("Database Password")
 	String getDatabasePassword();
 	void setDatabasePassword(String value);
-	
+
+	@Description("Table Name")
+	String getTableSchema();
+	void setTableSchema(String value);
+
 	@Description("Table Name")
 	String getTableName();
 	void setTableName(String value);
