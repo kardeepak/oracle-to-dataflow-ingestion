@@ -41,7 +41,9 @@ public class OptionsFactory {
 		options.setBQDataset(configEntity.getString("BQDataset"));
 		options.setBQTable(configEntity.getString("BQTable"));
 		
-		String query = "SELECT * FROM " + options.getTableName();
+		options.setJobName(options.getTableSchema().toLowerCase().replace("_", "-")+ "-" + options.getTableName().toLowerCase().replace("_", "-"));
+		
+		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();
 		if(!options.getPrimaryKeyColumn().isEmpty()) {
 			String countQuery = "SELECT NUM_ROWS - " + options.getStartingPoint().toString() + " FROM ALL_TABLES " 
 								+ "WHERE OWNER = '" + options.getTableSchema() + "' AND TABLE_NAME = '" + options.getTableName() + "'";
@@ -52,7 +54,7 @@ public class OptionsFactory {
 		options.setDatabseQuery(query);
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
-		String outputFilepath = options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableName() + "-" + options.getCounter();
+		String outputFilepath = options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
 		options.setOutputFilepath(outputFilepath);
 	}
 	
@@ -71,6 +73,13 @@ public class OptionsFactory {
 			this.table = options.getBQTable();
 			this.row = new HashMap<String, String>();
 			this.row.put("filename", options.getOutputFilepath());
+			this.row.put("LoadDateTime", DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now())); 
+			this.row.put("IsIncremental", "No");
+			this.row.put("IsBatch", "Yes");
+			this.row.put("IsRealTime", "No");
+			this.row.put("SensorName", "");
+			this.row.put("SensorID", "");
+			this.row.put("StartDate", DateTimeFormatter.ofPattern("dd-MM-yyyy").format(LocalDateTime.now()));
 		}
 		@Override
 		public Long apply(Long count) {
@@ -98,6 +107,7 @@ public class OptionsFactory {
 					for(String name: configEntity.getEntity("metadata").getNames()) {
 						this.row.put(name, configEntity.getEntity("metadata").getString(name));
 					}
+					this.row.put("EndDate", DateTimeFormatter.ofPattern("dd-MM-yyyy").format(LocalDateTime.now()));
 				}
 				
 			}

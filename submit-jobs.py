@@ -10,6 +10,6 @@ client = datastore.Client()
 query = client.query(kind = CONFIG_KIND)
 
 for ent in query.fetch():
-	cmd = "CONFIG_KEYNAME={} ./runOnDF.sh".format(ent.key.name.strip())
-	system(cmd)
-
+	if ent.key.name.strip().startswith("DSSDATA"):
+		cmd = "CONFIG_KEYNAME={} ./runOnDF.sh".format(ent.key.name.strip())
+		system(cmd)

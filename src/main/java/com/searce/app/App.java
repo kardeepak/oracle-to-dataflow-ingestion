@@ -10,10 +10,12 @@ import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.values.PCollection;
 
 
+
 public class App {
 	
   static void run(Options options) {
     Pipeline p = Pipeline.create(options);
+    
     PCollection<String> rows = p.apply("Reading Database", 
     		JdbcIO.<String>read()
     			.withDataSourceConfiguration(
@@ -30,7 +32,7 @@ public class App {
     rows.apply("Write File To GCS", TextIO.write().withoutSharding().to(options.getOutputFilepath()));
     
     rows.apply("Count Number of Records Processed", Count.globally())
-    	.apply("Updating Config In Datastore & Writing Metadata To GCS & BigQuery", MapElements.via(new OptionsFactory.ConfigUpdater(options)));
+    	.apply("Updating Config In Datastore & Writing Metadata To BigQuery", MapElements.via(new OptionsFactory.ConfigUpdater(options)));
     
     p.run();
   }
