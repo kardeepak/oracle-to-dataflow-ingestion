@@ -79,7 +79,7 @@ public class OptionsFactory {
 			this.row.put("IsRealTime", "No");
 			this.row.put("SensorName", "");
 			this.row.put("SensorID", "");
-			this.row.put("StartDate", DateTimeFormatter.ofPattern("dd-MM-yyyy").format(LocalDateTime.now()));
+			this.row.put("StartDate", DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now()));
 		}
 		@Override
 		public Long apply(Long count) {
@@ -107,7 +107,7 @@ public class OptionsFactory {
 					for(String name: configEntity.getEntity("metadata").getNames()) {
 						this.row.put(name, configEntity.getEntity("metadata").getString(name));
 					}
-					this.row.put("EndDate", DateTimeFormatter.ofPattern("dd-MM-yyyy").format(LocalDateTime.now()));
+					this.row.put("EndDate", DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now()));
 				}
 				
 			}
