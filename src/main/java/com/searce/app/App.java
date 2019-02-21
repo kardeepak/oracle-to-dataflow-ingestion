@@ -1,23 +1,29 @@
 package com.searce.app;
 
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Count;
+import org.apache.beam.sdk.transforms.Distinct;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 
 
 
 public class App {
 	
-  static void run(Options options) {
+ @SuppressWarnings("serial")
+static void run(Options options) {
     Pipeline p = Pipeline.create(options);
-    
-    PCollection<String> rows = p.apply("Reading Database", 
-    		JdbcIO.<String>read()
+
+    PCollection<KV<String, String>> rows = p.apply("Reading Database", 
+    		JdbcIO.<KV<String, String>>read()
     			.withDataSourceConfiguration(
     					JdbcIO.DataSourceConfiguration
     						.create(options.getDatabaseDriver(), options.getDatabaseConnectionURL())
@@ -26,10 +32,25 @@ public class App {
     			)
     			.withQuery(options.getDatabseQuery())
     			.withRowMapper(new CustomRowMapper())
-    			.withCoder(StringUtf8Coder.of())
+    			.withCoder(KvCoder.of(StringUtf8Coder.of(), StringUtf8Coder.of()))
     	);
-    		
-    rows.apply("Write File To GCS", TextIO.write().withoutSharding().to(options.getOutputFilepath()));
+
+    rows.apply("Extract Data From Rows", ParDo.of(new DoFn<KV<String, String>, String>() {
+    	@ProcessElement
+    	void process(ProcessContext c) {
+    		KV<String, String> elem = (KV<String, String>)c.element();
+    		c.output(elem.getValue());
+    	}
+    })).apply("Write File To GCS", TextIO.write().withoutSharding().to(options.getOutputFilepath()));
+    
+    rows.apply("Extract Columns Names From Rows", ParDo.of(new DoFn<KV<String, String>, String>() {
+    	@ProcessElement
+    	void process(ProcessContext c) {
+    		KV<String, String> elem = (KV<String, String>)c.element();
+    		c.output(elem.getKey());
+    	}
+    })).apply("Combine All", new Distinct<String>())
+    .apply("Write to Config File in GCS", TextIO.write().withoutSharding().to(options.getOutputSchemapath()));
     
     rows.apply("Count Number of Records Processed", Count.globally())
     	.apply("Updating Config In Datastore & Writing Metadata To BigQuery", MapElements.via(new OptionsFactory.ConfigUpdater(options)));

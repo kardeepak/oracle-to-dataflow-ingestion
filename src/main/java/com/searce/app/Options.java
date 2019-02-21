@@ -6,21 +6,25 @@ import org.apache.beam.sdk.options.PipelineOptions;
 
 public interface Options extends PipelineOptions, GcpOptions {
 	
-	@Description("Config Filepath")
+	@Description("Config Kind")
 	String getConfigKind();
 	void setConfigKind(String value);
 	
-	@Description("Config Filepath")
+	@Description("Config Key Name")
 	String getConfigKeyName();
 	void setConfigKeyName(String value);
 	
-	@Description("Output Filename.")
+	@Description("Output Folder")
 	String getOutputFolder();
 	void setOutputFolder(String value);
 	
-	@Description("Output Filename.")
+	@Description("Output Filename")
 	String getOutputFilepath();
 	void setOutputFilepath(String value);
+	
+	@Description("Output Schema Filepath")
+	String getOutputSchemapath();
+	void setOutputSchemapath(String value);
 	  
 	@Description("Database Driver Class Name")
 	String getDatabaseDriver();

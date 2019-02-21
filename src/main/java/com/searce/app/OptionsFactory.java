@@ -56,6 +56,9 @@ public class OptionsFactory {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
 		String outputFilepath = options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
 		options.setOutputFilepath(outputFilepath);
+		
+		String outputSchemaPath = options.getOutputFolder() + "schemas/" + options.getTableName();
+		options.setOutputSchemapath(outputSchemaPath);
 	}
 	
 	@SuppressWarnings("serial")
