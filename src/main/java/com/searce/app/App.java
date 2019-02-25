@@ -37,7 +37,7 @@ static void run(Options options) {
 
     rows.apply("Extract Data From Rows", ParDo.of(new DoFn<KV<String, String>, String>() {
     	@ProcessElement
-    	void process(ProcessContext c) {
+    	public void process(ProcessContext c) {
     		KV<String, String> elem = (KV<String, String>)c.element();
     		c.output(elem.getValue());
     	}
@@ -45,7 +45,7 @@ static void run(Options options) {
     
     rows.apply("Extract Columns Names From Rows", ParDo.of(new DoFn<KV<String, String>, String>() {
     	@ProcessElement
-    	void process(ProcessContext c) {
+    	public void process(ProcessContext c) {
     		KV<String, String> elem = (KV<String, String>)c.element();
     		c.output(elem.getKey());
     	}

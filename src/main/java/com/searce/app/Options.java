@@ -14,6 +14,10 @@ public interface Options extends PipelineOptions, GcpOptions {
 	String getConfigKeyName();
 	void setConfigKeyName(String value);
 	
+	@Description("Output Bucket")
+	String getBucket();
+	void setBucket(String value);
+	
 	@Description("Output Folder")
 	String getOutputFolder();
 	void setOutputFolder(String value);

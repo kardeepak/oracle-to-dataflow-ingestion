@@ -24,7 +24,8 @@ public class OptionsFactory {
 		Key configKey = datastore.newKeyFactory().setKind(options.getConfigKind())
 							.newKey(options.getConfigKeyName());
 		Entity configEntity = datastore.get(configKey);
-
+		
+		options.setBucket(configEntity.getString("bucket"));
 		options.setOutputFolder(configEntity.getString("outputFolder"));
 		options.setStartingPoint(Long.valueOf(configEntity.getLong("startingPoint")));
 		options.setCounter(Long.valueOf(configEntity.getLong("counter")));
@@ -43,7 +44,7 @@ public class OptionsFactory {
 		
 		options.setJobName(options.getTableSchema().toLowerCase().replace("_", "-")+ "-" + options.getTableName().toLowerCase().replace("_", "-"));
 		
-		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();
+		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName(); // + " WHERE ROWNUM <= 1";
 		if(!options.getPrimaryKeyColumn().isEmpty()) {
 			String countQuery = "SELECT NUM_ROWS - " + options.getStartingPoint().toString() + " FROM ALL_TABLES " 
 								+ "WHERE OWNER = '" + options.getTableSchema() + "' AND TABLE_NAME = '" + options.getTableName() + "'";
@@ -57,7 +58,7 @@ public class OptionsFactory {
 		String outputFilepath = options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
 		options.setOutputFilepath(outputFilepath);
 		
-		String outputSchemaPath = options.getOutputFolder() + "schemas/" + options.getTableName();
+		String outputSchemaPath = options.getBucket() + "schemas/" + options.getOutputFolder() + options.getTableSchema() + "." + options.getTableName();
 		options.setOutputSchemapath(outputSchemaPath);
 	}
 	
