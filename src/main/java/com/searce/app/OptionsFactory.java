@@ -44,14 +44,14 @@ public class OptionsFactory {
 		
 		options.setJobName(options.getTableSchema().toLowerCase().replace("_", "-")+ "-" + options.getTableName().toLowerCase().replace("_", "-"));
 		
-		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName(); // + " WHERE ROWNUM <= 1";
-		if(!options.getPrimaryKeyColumn().isEmpty()) {
-			String countQuery = "SELECT NUM_ROWS - " + options.getStartingPoint().toString() + " FROM ALL_TABLES " 
-								+ "WHERE OWNER = '" + options.getTableSchema() + "' AND TABLE_NAME = '" + options.getTableName() + "'";
+		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();// + " WHERE ROWNUM <= 1";
+		if(!options.getPrimaryKeyColumn().isEmpty() && options.getTableType().equals("append")) {
+			String countQuery = "SELECT COUNT(*) - " + options.getStartingPoint().toString() + " FROM " + options.getTableSchema() + "." + options.getTableName();
 			query = query + " WHERE ROWNUM <= "
 						+ "(" + countQuery + ")"
-						+ "ORDER BY " + options.getPrimaryKeyColumn() + " DESC";
+						+ " ORDER BY " + options.getPrimaryKeyColumn() + " DESC";
 		}
+		System.out.println(query);
 		options.setDatabseQuery(query);
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
