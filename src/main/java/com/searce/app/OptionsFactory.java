@@ -55,7 +55,7 @@ public class OptionsFactory {
 		options.setDatabseQuery(query);
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
-		String outputFilepath = options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
+		String outputFilepath = options.getBucket() + options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
 		options.setOutputFilepath(outputFilepath);
 		
 		String outputSchemaPath = options.getBucket() + "schemas/" + options.getOutputFolder() + options.getTableSchema() + "." + options.getTableName();
