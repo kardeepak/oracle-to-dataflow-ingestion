@@ -50,7 +50,7 @@ static void run(Options options) {
     		c.output(elem.getKey());
     	}
     })).apply("Combine All", new Distinct<String>())
-    .apply("Write to Config File in GCS", TextIO.write().withoutSharding().to(options.getOutputSchemapath()));
+    .apply("Write to Schema File in GCS", TextIO.write().withoutSharding().to(options.getOutputSchemapath()));
     
     rows.apply("Count Number of Records Processed", Count.globally())
     	.apply("Updating Config In Datastore & Writing Metadata To BigQuery", MapElements.via(new OptionsFactory.ConfigUpdater(options)));

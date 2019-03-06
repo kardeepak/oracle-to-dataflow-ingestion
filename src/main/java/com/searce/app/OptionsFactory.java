@@ -1,6 +1,7 @@
 package com.searce.app;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class OptionsFactory {
 		options.setDatabaseConnectionURL(configEntity.getString("databaseConnectionURL"));
 		options.setDatabaseUsername(configEntity.getString("databaseUsername"));
 		options.setDatabasePassword(configEntity.getString("databasePassword"));
+		
 		options.setTableName(configEntity.getString("tableName"));
 		options.setTableSchema(configEntity.getString("tableSchema"));
 		options.setTableType(configEntity.getString("tableType"));
@@ -46,16 +48,12 @@ public class OptionsFactory {
 		
 		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();// + " WHERE ROWNUM <= 1";
 		if(!options.getPrimaryKeyColumn().isEmpty() && options.getTableType().equals("append")) {
-			String countQuery = "SELECT COUNT(*) - " + options.getStartingPoint().toString() + " FROM " + options.getTableSchema() + "." + options.getTableName();
-			query = query + " WHERE ROWNUM <= "
-						+ "(" + countQuery + ")"
-						+ " ORDER BY " + options.getPrimaryKeyColumn() + " DESC";
+			query = query + " ORDER BY " + options.getPrimaryKeyColumn() + " OFFSET " + options.getStartingPoint().toString() + " ROWS";
 		}
-		System.out.println(query);
 		options.setDatabseQuery(query);
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
-		String outputFilepath = options.getBucket() + options.getOutputFolder() + dtf.format(LocalDateTime.now()) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
+		String outputFilepath = options.getBucket() + options.getOutputFolder() + dtf.format(ZonedDateTime.now(ZoneId.of("Asia/Kolkata"))) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
 		options.setOutputFilepath(outputFilepath);
 		
 		String outputSchemaPath = options.getBucket() + "schemas/" + options.getOutputFolder() + options.getTableSchema() + "." + options.getTableName();
@@ -77,19 +75,17 @@ public class OptionsFactory {
 			this.table = options.getBQTable();
 			this.row = new HashMap<String, String>();
 			this.row.put("filename", options.getOutputFilepath());
-			this.row.put("LoadDateTime", DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now())); 
-			this.row.put("IsIncremental", "No");
+			this.row.put("LoadDateTime", ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss"))); 
+			this.row.put("IsIncremental", (options.getStartingPoint().equals(0))? "No" : "Yes");
 			this.row.put("IsBatch", "Yes");
 			this.row.put("IsRealTime", "No");
 			this.row.put("SensorName", "");
 			this.row.put("SensorID", "");
-			this.row.put("StartDate", DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now()));
+			this.row.put("StartDate", ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss")));
 		}
 		@Override
 		public Long apply(Long count) {
-			if(count.equals(0)) {
-				return count;
-			}
+			if(count.equals(0))	return count;
 			
 			{
 				// Updating Config at Datastore
@@ -111,7 +107,7 @@ public class OptionsFactory {
 					for(String name: configEntity.getEntity("metadata").getNames()) {
 						this.row.put(name, configEntity.getEntity("metadata").getString(name));
 					}
-					this.row.put("EndDate", DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now()));
+					this.row.put("EndDate", ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss")));
 				}
 				
 			}

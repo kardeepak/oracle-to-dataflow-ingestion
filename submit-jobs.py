@@ -17,9 +17,10 @@ cnt = 0
 total = int(input("Enter total jobs : "))
 
 for ent in query.fetch():
-	with open("started.csv", "r") as f:
-		lines = [x.strip() for x in f.readlines()]
-	if ent.key.name.strip().startswith("MES_FP") and ent.key.name not in lines:
+	if ent.key.name.strip().startswith("DSS") and ent["tableName"] != "T_PI_DSS_KBF":
+		print(ent)
+		ent["counter"] = 0
+		client.put(ent)
 		cmd = "CONFIG_KEYNAME={} ./runOnDF.sh &".format(ent.key.name.strip())
 		system(cmd)
 		with open("started.csv", "a") as f:
