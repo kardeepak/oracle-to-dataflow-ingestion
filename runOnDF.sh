@@ -7,8 +7,8 @@ PROJECT=tsl-datalake
 CONFIG_KIND=config
 NETWORK=vpc-tsl
 SUBNET=regions/asia-south1/subnetworks/subnet-1
-TEMP_LOCATION="gs://tsl-datalake/tmp/"
-STAGING_LOCATION="gs://tsl-datalake/tmp/"
+TEMP_LOCATION="gs://tsl_datalake/tmp/"
+STAGING_LOCATION="gs://tsl_datalake/tmp/"
 
 mvn compile
 mvn exec:java -Dexec.mainClass=com.searce.app.App \

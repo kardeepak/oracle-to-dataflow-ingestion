@@ -11,20 +11,15 @@ st_cl = storage.Client()
 bucket = st_cl.get_bucket("tsl-datalake")
 
 query = client.query(kind = CONFIG_KIND)
-query.add_filter("counter", "=", 0)
+query.add_filter("counter", "=", 1)
 
-cnt = 0
 total = int(input("Enter total jobs : "))
 
 for ent in query.fetch():
-	if ent.key.name.strip().startswith("DSS") and ent["tableName"] != "T_PI_DSS_KBF":
-		print(ent)
-		ent["counter"] = 0
-		client.put(ent)
+	if ent.key.name.strip().startswith("DSS"):
+		print(ent["tableName"])
 		cmd = "CONFIG_KEYNAME={} ./runOnDF.sh &".format(ent.key.name.strip())
 		system(cmd)
-		with open("started.csv", "a") as f:
-			f.write(ent.key.name + "\n")
-		cnt += 1
-		if cnt == total:
+		total -= 1
+		if total == 0:
 			break
