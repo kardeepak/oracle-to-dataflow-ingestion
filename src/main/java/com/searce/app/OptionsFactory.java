@@ -46,9 +46,10 @@ public class OptionsFactory {
 		
 		options.setJobName(options.getTableSchema().toLowerCase().replace("_", "-")+ "-" + options.getTableName().toLowerCase().replace("_", "-"));
 		
-		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();// + " WHERE ROWNUM <= 1";
+		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();
 		if(!options.getPrimaryKeyColumn().isEmpty() && options.getTableType().equals("append")) {
-			query = query + " ORDER BY " + options.getPrimaryKeyColumn() + " OFFSET " + options.getStartingPoint().toString() + " ROWS";
+			String countQuery = "SELECT COUNT(*) - " + options.getStartingPoint() + " FROM " + options.getTableSchema() + "." + options.getTableName();
+			query = query + " WHERE ROWNUM < (" + countQuery + ") ORDER BY " + options.getPrimaryKeyColumn() + " DESC";
 		}
 		options.setDatabseQuery(query);
 		
@@ -85,7 +86,7 @@ public class OptionsFactory {
 		}
 		@Override
 		public Long apply(Long count) {
-			if(count.equals(0))	return count;
+			if(count.equals(Long.valueOf(0)))	return count;
 			
 			{
 				// Updating Config at Datastore

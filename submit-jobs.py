@@ -15,8 +15,10 @@ query.add_filter("counter", "=", 1)
 
 total = int(input("Enter total jobs : "))
 
+lines = open("started.csv", "r").read().split("\n")
+
 for ent in query.fetch():
-	if ent.key.name.strip().startswith("DSS"):
+	if ent.key.name.strip().startswith("DSS") and ent["tableName"] not in lines:
 		print(ent["tableName"])
 		cmd = "CONFIG_KEYNAME={} ./runOnDF.sh &".format(ent.key.name.strip())
 		system(cmd)
