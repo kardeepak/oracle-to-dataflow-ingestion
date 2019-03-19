@@ -86,7 +86,18 @@ public class OptionsFactory {
 		}
 		@Override
 		public Long apply(Long count) {
-			if(count.equals(Long.valueOf(0)))	return count;
+			if(count.equals(Long.valueOf(0))) {
+				Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+				Key configKey = datastore.newKeyFactory().setKind(this.configKind)
+									.newKey(this.configKeyName);
+				Entity configEntity = datastore.get(configKey);
+				Entity updatedConfigEntity = Entity.newBuilder(configEntity)
+						.set("running", false)
+						.build();
+				
+				datastore.put(updatedConfigEntity);
+				return count;
+			};
 			
 			{
 				// Updating Config at Datastore
@@ -100,6 +111,7 @@ public class OptionsFactory {
 				Entity updatedConfigEntity = Entity.newBuilder(configEntity)
 						.set("counter", Long.sum(configEntity.getLong("counter"), (long)1))
 						.set("startingPoint", Long.sum(configEntity.getLong("startingPoint"), count.longValue()))
+						.set("running", false)
 						.build();
 				
 				datastore.put(updatedConfigEntity);
