@@ -8,13 +8,18 @@ CONFIG_KIND = "config"
 
 total = int(input("Enter total jobs : "))
 
-keys = open("start.csv", "r").read().split("\n")
-
-for key in keys:
-	if True:
-		print(key)
+client = datastore.Client()
+query = client.query(kind=CONFIG_KIND)
+query.add_filter("outputFolder", "=", "AMDS/")
+query.add_filter("counter", "=", 1)
+	
+for ent in query.fetch():
+	if ent.get("url", False):
+		print(ent.key.name)	
 		cmd = "CONFIG_KEYNAME={} ./runOnDF.sh &".format(ent.key.name.strip())
 		system(cmd)
+		ent["running"] = True
+		client.put(ent)
 		total -= 1
 		if total == 0:
 			break

@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.beam.sdk.options.ValueProvider;
+import org.apache.beam.sdk.options.ValueProvider.StaticValueProvider;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 
 import com.google.cloud.bigquery.BigQuery;
@@ -29,7 +31,9 @@ public class OptionsFactory {
 		options.setBucket(configEntity.getString("bucket"));
 		options.setOutputFolder(configEntity.getString("outputFolder"));
 		options.setStartingPoint(Long.valueOf(configEntity.getLong("startingPoint")));
-		options.setCounter(Long.valueOf(configEntity.getLong("counter")));
+		options.setCounter(
+				StaticValueProvider.of(Long.valueOf(configEntity.getLong("counter")))
+		);
 		
 		options.setDatabaseDriver(configEntity.getString("databaseDriver"));
 		options.setDatabaseConnectionURL(configEntity.getString("databaseConnectionURL"));
@@ -44,7 +48,7 @@ public class OptionsFactory {
 		options.setBQDataset(configEntity.getString("BQDataset"));
 		options.setBQTable(configEntity.getString("BQTable"));
 		
-		options.setJobName(options.getTableSchema().toLowerCase().replace("_", "-")+ "-" + options.getTableName().toLowerCase().replace("_", "-"));
+		options.setJobName(options.getTableName().toLowerCase().replace("_", "-"));
 		
 		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();
 		if(!options.getPrimaryKeyColumn().isEmpty() && options.getTableType().equals("append")) {
@@ -54,11 +58,18 @@ public class OptionsFactory {
 		options.setDatabseQuery(query);
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd/HH/");
-		String outputFilepath = options.getBucket() + options.getOutputFolder() + dtf.format(ZonedDateTime.now(ZoneId.of("Asia/Kolkata"))) + options.getTableSchema() + "." + options.getTableName() + "-" + options.getCounter().toString();
+		String outputFilepath = options.getBucket() + options.getOutputFolder() + dtf.format(ZonedDateTime.now(ZoneId.of("Asia/Kolkata"))) + options.getTableName() + "-" + options.getCounter().get().toString();
 		options.setOutputFilepath(outputFilepath);
 		
-		String outputSchemaPath = options.getBucket() + "schemas/" + options.getOutputFolder() + options.getTableSchema() + "." + options.getTableName();
+		String outputSchemaPath = options.getBucket() + "schemas/" + options.getOutputFolder() + options.getTableName();
 		options.setOutputSchemapath(outputSchemaPath);
+		
+		if(configEntity.contains("url") && !configEntity.getString("url").isEmpty()) {
+			options.setURL(configEntity.getString("url").strip());
+			options.setFromDate(configEntity.getString("FromDate"));
+			options.setToDate(ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+			options.setNewFromDate(ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+		}
 	}
 	
 	@SuppressWarnings("serial")
@@ -67,13 +78,17 @@ public class OptionsFactory {
 		private String configKeyName;
 		private String dataset;
 		private String table;
+		private String fromDate;
 		private Map<String, String> row;
+		private ValueProvider<Long> counter;
 
 		public ConfigUpdater(Options options) {
 			this.configKind = options.getConfigKind();
 			this.configKeyName = options.getConfigKeyName();
 			this.dataset = options.getBQDataset();
 			this.table = options.getBQTable();
+			this.fromDate = options.getNewFromDate();
+			this.counter = options.getCounter();
 			this.row = new HashMap<String, String>();
 			this.row.put("filename", options.getOutputFilepath());
 			this.row.put("LoadDateTime", ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss"))); 
@@ -95,9 +110,12 @@ public class OptionsFactory {
 				
 				if(configEntity.getString("tableType").equals("update"))	count = (long) 0;
 				
+				System.out.println("XXXXXXXXXX" + this.counter.get().toString());
+				
 				Entity updatedConfigEntity = Entity.newBuilder(configEntity)
 						.set("counter", Long.sum(configEntity.getLong("counter"), (long)1))
 						.set("startingPoint", Long.sum(configEntity.getLong("startingPoint"), count.longValue()))
+						.set("FromDate", this.fromDate)
 						.set("running", false)
 						.build();
 				

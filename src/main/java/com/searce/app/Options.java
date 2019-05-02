@@ -3,6 +3,7 @@ package com.searce.app;
 import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
+import org.apache.beam.sdk.options.ValueProvider;
 
 public interface Options extends PipelineOptions, GcpOptions {
 	
@@ -71,8 +72,8 @@ public interface Options extends PipelineOptions, GcpOptions {
 	void setDatabseQuery(String value);
 	
 	@Description("Source Counter")
-	Long getCounter();
-	void setCounter(Long value);
+	ValueProvider<Long> getCounter();
+	void setCounter(ValueProvider<Long> value);
 	
 	@Description("Bigquery Dataset")
 	String getBQDataset();
@@ -82,4 +83,18 @@ public interface Options extends PipelineOptions, GcpOptions {
 	String getBQTable();
 	void setBQTable(String value);
 	
+	@Description("Web API URL")
+	String getURL();
+	void setURL(String value);
+	
+	@Description("Start Date for Web API")
+	String getFromDate();
+	void setFromDate(String value);
+	
+	@Description("End Date for Web API")
+	String getToDate();
+	void setToDate(String value);
+	
+	String getNewFromDate();
+	void setNewFromDate(String value);
 }
