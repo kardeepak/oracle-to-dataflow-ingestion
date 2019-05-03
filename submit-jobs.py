@@ -1,4 +1,4 @@
-#!env python3
+#!/usr/bin/env python3
 
 from google.cloud import datastore
 from os import system
@@ -26,9 +26,6 @@ def submit_jobs():
 		system(cmd)
 		ent["running"] = True
 		client.put(ent)
-		total -= 1
-		if total == 0:
-			break
 
 if __name__ == "__main__":
 	app.run()
