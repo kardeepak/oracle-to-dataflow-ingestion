@@ -26,6 +26,9 @@ def submit_jobs():
 		system(cmd)
 		ent["running"] = True
 		client.put(ent)
+		running += 1
+		
+	return "Running..."
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0", port=8000)
