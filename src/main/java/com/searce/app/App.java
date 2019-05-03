@@ -45,9 +45,7 @@ public class App {
 	    			.withCoder(KvCoder.of(StringUtf8Coder.of(), StringUtf8Coder.of()))
 	    	);
 	    }
-	    else {
-	    	rows = getRows(p, options);
-	    }
+	    else	rows = getRows(p, options);
 	
 	    rows.apply("Extract Data From Rows", ParDo.of(new DoFn<KV<String, String>, String>() {
 	    	@ProcessElement
