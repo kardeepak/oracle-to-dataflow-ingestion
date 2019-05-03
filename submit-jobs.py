@@ -1,21 +1,27 @@
 #!env python3
 
-from google.cloud import datastore, storage
-from os import system, path
-from time import sleep
+from google.cloud import datastore
+from os import system
+from flask import Flask
 
-CONFIG_KIND = "config"
+app = Flask(__name__)
 
-total = int(input("Enter total jobs : "))
+@app.route("/")
+def submit_jobs():
+	CONFIG_KIND = "config"
+	client = datastore.Client()
+	query = client.query(kind=CONFIG_KIND)
+	entities = list(query.fetch())
 
-client = datastore.Client()
-query = client.query(kind=CONFIG_KIND)
-query.add_filter("outputFolder", "=", "AMDS/")
-query.add_filter("counter", "=", 1)
+	counter = min([int(ent["counter"]) for ent in entities])
+	running = len([ent for ent in entities if ent["running"]])
 	
-for ent in query.fetch():
-	if ent.get("url", False):
-		print(ent.key.name)	
+	query = client.query(kind=CONFIG_KIND)
+	query.add_filter("counter", "=", counter)
+	entities = list(query.fetch())
+		
+	while running < 10 and len(entities) > 0:
+		ent = entities.pop(0)
 		cmd = "CONFIG_KEYNAME={} ./runOnDF.sh &".format(ent.key.name.strip())
 		system(cmd)
 		ent["running"] = True
@@ -23,3 +29,6 @@ for ent in query.fetch():
 		total -= 1
 		if total == 0:
 			break
+
+if __name__ == "__main__":
+	app.run()
