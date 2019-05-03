@@ -13,8 +13,8 @@ def submit_jobs():
 	query = client.query(kind=CONFIG_KIND)
 	entities = list(query.fetch())
 
-	counter = min([ent["counter"] for ent in entities if ent["counter"] != 0])
-	running = len([ent for ent in entities if ent["running"] and ent["counter"] != 0])
+	counter = min([ent["counter"] for ent in entities if ent["counter"] > 1])
+	running = len([ent for ent in entities if ent["running"] and ent["counter"] > 1])
 	
 	query = client.query(kind=CONFIG_KIND)
 	query.add_filter("counter", "=", counter)
