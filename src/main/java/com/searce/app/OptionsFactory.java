@@ -49,7 +49,7 @@ public class OptionsFactory {
 		options.setBQTable(configEntity.getString("BQTable"));
 		
 		options.setJobName(options.getTableName().toLowerCase().replace("_", "-"));
-		
+
 		String query = "SELECT * FROM " + options.getTableSchema() + "." + options.getTableName();
 		if(!options.getPrimaryKeyColumn().isEmpty() && options.getTableType().equals("append")) {
 			String countQuery = "SELECT COUNT(*) - " + options.getStartingPoint() + " FROM " + options.getTableSchema() + "." + options.getTableName();
@@ -66,8 +66,8 @@ public class OptionsFactory {
 		
 		if(configEntity.contains("url") && !configEntity.getString("url").isEmpty()) {
 			options.setURL(configEntity.getString("url").strip());
-			options.setFromDate(configEntity.getString("FromDate"));
-			options.setToDate(ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+			options.setFromDate(configEntity.getString("FromDate").concat(" 00:00:00"));
+			options.setToDate(ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")).concat(" 23:59:59"));
 			options.setNewFromDate(ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
 		}
 	}
